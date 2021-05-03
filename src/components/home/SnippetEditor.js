@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import ErrorMessage from "../misc/ErrorMessage";
+import "./SnippetEditor.scss";
 
 function SnippetEditor({
   getSnippets,
@@ -9,6 +11,7 @@ function SnippetEditor({
   const [editorTitle, setEditorTitle] = useState("");
   const [editorDescription, setEditorDescription] = useState("");
   const [editorCode, setEditorCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     if (editSnippetData) {
@@ -28,7 +31,23 @@ function SnippetEditor({
       description: editorDescription ? editorDescription : undefined,
       code: editorCode ? editorCode : undefined,
     };
-    await Axios.post("http://localhost:5000/snippet/", snippetData);
+
+    try {
+      if (!editSnippetData)
+        await Axios.post("http://localhost:5000/snippet/", snippetData);
+      else
+        await Axios.put(
+          `http://localhost:5000/snippet/${editSnippetData._id}`,
+          snippetData
+        );
+    } catch (err) {
+      if (err.response) {
+        if (err.response.data.errorMessage) {
+          setErrorMessage(err.response.data.errorMessage);
+        }
+      }
+      return;
+    }
 
     getSnippets();
     closeEditor();
@@ -41,8 +60,16 @@ function SnippetEditor({
   }
   return (
     <div className="snippet-editor">
-      <form onSubmit={saveSnippet}>
-        <label htmlFor="editor-title">Title</label>
+      {errorMessage && (
+        <ErrorMessage
+          message={errorMessage}
+          clear={() => setErrorMessage(null)}
+        />
+      )}
+      <form className="form" onSubmit={saveSnippet}>
+        <label className="label" htmlFor="editor-title">
+          Title
+        </label>
         <input
           id="editor-title"
           type="text"
@@ -50,7 +77,9 @@ function SnippetEditor({
           onChange={(e) => setEditorTitle(e.target.value)}
         />
         <br />
-        <label htmlFor="editor-description">Description</label>
+        <label className="label" htmlFor="editor-description">
+          Description
+        </label>
         <input
           id="editor-description"
           type="text"
@@ -58,7 +87,9 @@ function SnippetEditor({
           onChange={(e) => setEditorDescription(e.target.value)}
         />
         <br />
-        <label htmlFor="editor-code">Code</label>
+        <label className="label" htmlFor="editor-code">
+          Code
+        </label>
         <textarea
           id="editor-code"
           value={editorCode}

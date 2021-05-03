@@ -1,6 +1,7 @@
 import Axios from "axios";
+import "./Snippet.scss";
 
-const Snippet = ({ snippet, getSnippets }) => {
+const Snippet = ({ snippet, getSnippets, editSnippet }) => {
   async function deleteSnippet() {
     if (window.confirm("Do you want to delete this snippet?")) {
       await Axios.delete(`http://localhost:5000/snippet/${snippet._id}`);
@@ -10,17 +11,21 @@ const Snippet = ({ snippet, getSnippets }) => {
   }
   return (
     <div className="snippet">
-      {snippet.title && <h2>{snippet.title}</h2>}
-      {snippet.description && <p>{snippet.description}</p>}
+      {snippet.title && <h2 className="title">{snippet.title}</h2>}
+      {snippet.description && (
+        <p className="description">{snippet.description}</p>
+      )}
       {snippet.code && (
-        <pre>
+        <pre className="code">
           <code>{snippet.code}</code>
         </pre>
       )}
-      {/* <button className="btn-edit" onClick={() => editSnippet(snippet)}>
+      <button className="btn-edit" onClick={() => editSnippet(snippet)}>
         Edit
-      </button> */}
-      <button onClick={deleteSnippet}>Delete</button>
+      </button>
+      <button className="btn-delete" onClick={deleteSnippet}>
+        Delete
+      </button>
     </div>
   );
 };

@@ -1,26 +1,35 @@
 import Axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Snippet from "./Snippet";
+import UserContext from "../../context/UserContext";
 import SnippetEditor from "./SnippetEditor";
+import { Link } from "react-router-dom";
+import "./Home.scss";
 
 const Home = () => {
   const [snippets, setSnippets] = useState([]);
   const [newSnippetEditorOpen, setNewSnippetEditorOpen] = useState(false);
-  // const [editSnippetData, setEditSnippetData] = useState(null);
+  const [editSnippetData, setEditSnippetData] = useState(null);
+
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
+    if (!user) {
+      setSnippets([]);
+      return;
+    }
     getSnippets();
-  }, []);
+  }, [user]);
 
   async function getSnippets() {
     const snippetsRes = await Axios.get("http://localhost:5000/snippet/");
     console.log(snippetsRes);
     setSnippets(snippetsRes.data);
   }
-  /* function editSnippet(snippetData) {
+  function editSnippet(snippetData) {
     setEditSnippetData(snippetData);
-    setSnippetEditorOpen(true);
-  } */
+    setNewSnippetEditorOpen(true);
+  }
 
   const renderSnippets = () => {
     let sortedSnippets = [...snippets];
@@ -34,7 +43,7 @@ const Home = () => {
           key={i}
           snippet={snippet}
           getSnippets={getSnippets}
-          //editSnippet={editSnippet}
+          editSnippet={editSnippet}
         />
       );
     });
@@ -42,8 +51,11 @@ const Home = () => {
 
   return (
     <div className="home">
-      {!newSnippetEditorOpen && (
-        <button onClick={() => setNewSnippetEditorOpen(true)}>
+      {!newSnippetEditorOpen && user && (
+        <button
+          className="btn-editor-toggle"
+          onClick={() => setNewSnippetEditorOpen(true)}
+        >
           Add Snippet
         </button>
       )}
@@ -51,10 +63,20 @@ const Home = () => {
         <SnippetEditor
           setNewSnippetEditorOpen={setNewSnippetEditorOpen}
           getSnippets={getSnippets}
-          //editSnippetData={editSnippetData}
+          editSnippetData={editSnippetData}
         />
       )}
-      {renderSnippets()}
+      {snippets.length > 0
+        ? renderSnippets()
+        : user && (
+            <p className="no-snippets-msg">No snippets have been added yet.</p>
+          )}
+      {user === null && (
+        <div className="no-user-message">
+          <h2>Welcome to Snippet manager</h2>
+          <Link to="/register">Register here</Link>
+        </div>
+      )}
     </div>
   );
 };
