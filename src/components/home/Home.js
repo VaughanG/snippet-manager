@@ -4,6 +4,7 @@ import Snippet from "./Snippet";
 import UserContext from "../../context/UserContext";
 import SnippetEditor from "./SnippetEditor";
 import { Link } from "react-router-dom";
+import domain from "../../util/domain";
 import "./Home.scss";
 
 const Home = () => {
@@ -22,7 +23,7 @@ const Home = () => {
   }, [user]);
 
   async function getSnippets() {
-    const snippetsRes = await Axios.get("http://localhost:5000/snippet/");
+    const snippetsRes = await Axios.get(`${domain}/snippet/`);
     console.log(snippetsRes);
     setSnippets(snippetsRes.data);
   }

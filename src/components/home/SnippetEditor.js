@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import domain from "../../util/domain";
 import ErrorMessage from "../misc/ErrorMessage";
+
 import "./SnippetEditor.scss";
 
 function SnippetEditor({
@@ -33,11 +35,10 @@ function SnippetEditor({
     };
 
     try {
-      if (!editSnippetData)
-        await Axios.post("http://localhost:5000/snippet/", snippetData);
+      if (!editSnippetData) await Axios.post(`${domain}/snippet/`, snippetData);
       else
         await Axios.put(
-          `http://localhost:5000/snippet/${editSnippetData._id}`,
+          `${domain}/snippet/${editSnippetData._id}`,
           snippetData
         );
     } catch (err) {
